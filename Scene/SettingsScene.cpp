@@ -13,44 +13,59 @@
 #include "UI/Component/Label.hpp"
 #include "UI/Component/Slider.hpp"
 
-void SettingsScene::Initialize() {
+void SettingsScene::Initialize()
+{
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;
     int halfH = h / 2;
-
     Engine::ImageButton *btn;
+
+    // Add title
+    AddNewObject(new Engine::Label("Settings", "pirulen.ttf", 120, halfW, halfH / 3 + 50, 10, 255, 255, 255, 0.5, 0.5));
+
+    // Add BGM Volume Slider
+    AddNewObject(new Engine::Label("BGM Volume", "pirulen.ttf", 36, halfW - 200, halfH - 55, 255, 255, 255, 255, 0.5, 0.5));
+    Slider *bgmSlider = new Slider(halfW, halfH - 70, 400, 40);
+    bgmSlider->SetValue(AudioHelper::BGMVolume);
+    bgmSlider->SetOnValueChangedCallback(std::bind(&SettingsScene::BGMSlideOnValueChanged, this, std::placeholders::_1));
+    AddNewControlObject(bgmSlider);
+
+    // Add SFX Volume Slider
+    AddNewObject(new Engine::Label("SFX Volume", "pirulen.ttf", 36, halfW - 200, halfH + 55, 255, 255, 255, 255, 0.5, 0.5));
+    Slider *sfxSlider = new Slider(halfW, halfH + 40, 400, 40);
+    sfxSlider->SetValue(AudioHelper::SFXVolume);
+    sfxSlider->SetOnValueChangedCallback(std::bind(&SettingsScene::SFXSlideOnValueChanged, this, std::placeholders::_1));
+    AddNewControlObject(sfxSlider);
+
+    // Add Back Button
     btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH * 3 / 2 - 50, 400, 100);
-    btn->SetOnClickCallback(std::bind(&SettingsScene::BackOnClick, this, 1));
+    btn->SetOnClickCallback(std::bind(&SettingsScene::BackOnClick, this, 0));
     AddNewControlObject(btn);
     AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48, halfW, halfH * 3 / 2, 0, 0, 0, 255, 0.5, 0.5));
 
-    Slider *sliderBGM, *sliderSFX;
-    sliderBGM = new Slider(40 + halfW - 95, halfH - 50 - 2, 190, 4);
-    sliderBGM->SetOnValueChangedCallback(std::bind(&SettingsScene::BGMSlideOnValueChanged, this, std::placeholders::_1));
-    AddNewControlObject(sliderBGM);
-    AddNewObject(new Engine::Label("BGM: ", "pirulen.ttf", 28, 40 + halfW - 60 - 95, halfH - 50, 255, 255, 255, 255, 0.5, 0.5));
-    sliderSFX = new Slider(40 + halfW - 95, halfH + 50 - 2, 190, 4);
-    sliderSFX->SetOnValueChangedCallback(std::bind(&SettingsScene::SFXSlideOnValueChanged, this, std::placeholders::_1));
-    AddNewControlObject(sliderSFX);
-    AddNewObject(new Engine::Label("SFX: ", "pirulen.ttf", 28, 40 + halfW - 60 - 95, halfH + 50, 255, 255, 255, 255, 0.5, 0.5));
-    // Not safe if release resource while playing, however we only free while change scene, so it's fine.
+    // Initialize BGM
     bgmInstance = AudioHelper::PlaySample("select.ogg", true, AudioHelper::BGMVolume);
-    sliderBGM->SetValue(AudioHelper::BGMVolume);
-    sliderSFX->SetValue(AudioHelper::SFXVolume);
 }
-void SettingsScene::Terminate() {
+
+void SettingsScene::Terminate()
+{
     AudioHelper::StopSample(bgmInstance);
-    bgmInstance = std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE>();
     IScene::Terminate();
 }
-void SettingsScene::BackOnClick(int stage) {
+
+void SettingsScene::BackOnClick(int stage)
+{
     Engine::GameEngine::GetInstance().ChangeScene("start");
 }
-void SettingsScene::BGMSlideOnValueChanged(float value) {
+
+void SettingsScene::BGMSlideOnValueChanged(float value)
+{
     AudioHelper::ChangeSampleVolume(bgmInstance, value);
     AudioHelper::BGMVolume = value;
 }
-void SettingsScene::SFXSlideOnValueChanged(float value) {
+
+void SettingsScene::SFXSlideOnValueChanged(float value)
+{
     AudioHelper::SFXVolume = value;
 }

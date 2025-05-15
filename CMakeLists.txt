@@ -20,13 +20,15 @@ add_executable(2025_I2P2_TowerDefense
     Bullet/LaserBullet.cpp
     Bullet/LaserBullet.hpp
 
-    # TODO HACKATHON-3 (3/3): Add the new enemy source files here
+    # FINISH HACKATHON-3 (3/3): Add the new enemy source files here
     Enemy/Enemy.cpp
     Enemy/Enemy.hpp
     Enemy/SoldierEnemy.cpp
     Enemy/SoldierEnemy.hpp
     Enemy/TankEnemy.cpp
     Enemy/TankEnemy.hpp
+    Enemy/FastEnemy.cpp
+    Enemy/FastEnemy.hpp
 
     Engine/Allegro5Exception.cpp
     Engine/Allegro5Exception.hpp
@@ -53,11 +55,13 @@ add_executable(2025_I2P2_TowerDefense
     Engine/Sprite.cpp
     Engine/Sprite.hpp
     
-    # TODO HACKATHON-2 (3/3): Add the new scene source files here
+    # FINISH HACKATHON-2 (3/3): Add the new scene source files here
     Scene/LoseScene.cpp
     Scene/LoseScene.hpp
     Scene/PlayScene.cpp
     Scene/PlayScene.hpp
+    Scene/SettingsScene.cpp
+    Scene/SettingsScene.hpp
     Scene/StageSelectScene.cpp
     Scene/StageSelectScene.hpp
     Scene/StartScene.cpp

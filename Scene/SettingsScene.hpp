@@ -1,9 +1,10 @@
-#ifndef SettingsScene_HPP
-#define SettingsScene_HPP
+#ifndef SETTINGSSCENE_HPP
+#define SETTINGSSCENE_HPP
+
+#include <allegro5/allegro_audio.h>
 #include <memory>
 
 #include "Engine/IScene.hpp"
-#include <allegro5/allegro_audio.h>
 
 class SettingsScene final : public Engine::IScene {
 private:
@@ -18,4 +19,4 @@ public:
     void SFXSlideOnValueChanged(float value);
 };
 
-#endif   // SettingsScene_HPP
+#endif // SETTINGSSCENE_HPP
