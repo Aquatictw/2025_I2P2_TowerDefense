@@ -3,7 +3,8 @@
 #include "Engine/IScene.hpp"
 #include <allegro5/allegro_audio.h>
 
-class WinScene final : public Engine::IScene {
+class WinScene final : public Engine::IScene
+{
 private:
     float ticks;
     ALLEGRO_SAMPLE_ID bgmId;
@@ -14,6 +15,8 @@ public:
     void Terminate() override;
     void Update(float deltaTime) override;
     void BackOnClick(int stage);
+    void ScoreboardOnClick(int stage);
+    void WriteScore();
 };
 
-#endif   // WINSCENE_HPP
+#endif // WINSCENE_HPP
