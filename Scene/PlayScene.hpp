@@ -10,16 +10,19 @@
 #include "Engine/Point.hpp"
 
 class Turret;
-namespace Engine {
+namespace Engine
+{
     class Group;
     class Image;
     class Label;
     class Sprite;
-}   // namespace Engine
+} // namespace Engine
 
-class PlayScene final : public Engine::IScene {
+class PlayScene final : public Engine::IScene
+{
 private:
-    enum TileType {
+    enum TileType
+    {
         TILE_DIRT,
         TILE_FLOOR,
         TILE_OCCUPIED,
@@ -29,7 +32,6 @@ private:
 
 protected:
     int lives;
-    int money;
     int SpeedMult;
 
 public:
@@ -42,8 +44,10 @@ public:
     static const Engine::Point EndGridPoint;
     static const std::vector<int> code;
     int MapId;
+    int money;
     float ticks;
     float deathCountDown;
+    std::string username;
     // Map tiles.
     Group *TileMapGroup;
     Group *GroundEffectGroup;
@@ -83,4 +87,4 @@ public:
     std::vector<std::vector<int>> CalculateBFSDistance();
     // void ModifyReadMapTiles();
 };
-#endif   // PLAYSCENE_HPP
+#endif // PLAYSCENE_HPP

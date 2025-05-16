@@ -81,18 +81,15 @@ void PlayScene::Terminate()
 void PlayScene::Update(float deltaTime)
 {
     // If we use deltaTime directly, then we might have Bullet-through-paper problem.
-    // Reference: Bullet-Through-Paper
     if (SpeedMult == 0)
         deathCountDown = -1;
     else if (deathCountDown != -1)
         SpeedMult = 1;
-    // Calculate danger zone.
     std::vector<float> reachEndTimes;
     for (auto &it : EnemyGroup->GetObjects())
     {
         reachEndTimes.push_back(dynamic_cast<Enemy *>(it)->reachEndTime);
     }
-    // Can use Heap / Priority-Queue instead. But since we won't have too many enemies, sorting is fast enough.
     std::sort(reachEndTimes.begin(), reachEndTimes.end());
     float newDeathCountDown = -1;
     int danger = lives;
@@ -110,7 +107,7 @@ void PlayScene::Update(float deltaTime)
                     // Restart Death Count Down BGM.
                     AudioHelper::StopSample(deathBGMInstance);
                     if (SpeedMult != 0)
-                        deathBGMInstance = AudioHelper::PlaySample("astronomia.ogg", false, AudioHelper::BGMVolume, pos);
+                        deathBGMInstance = AudioHelper::PlaySample("lose.mp3", false, AudioHelper::BGMVolume, pos);
                 }
                 float alpha = pos / DangerTime;
                 alpha = std::max(0, std::min(255, static_cast<int>(alpha * alpha * 255)));
@@ -135,21 +132,10 @@ void PlayScene::Update(float deltaTime)
         IScene::Update(deltaTime);
         // Check if we should create new enemy.
         ticks += deltaTime;
-        if (enemyWaveData.empty())
+        if (enemyWaveData.empty()) // for some reason, merging two if statements will crash
         {
-            if (EnemyGroup->GetObjects().empty())
+            if (enemyWaveData.empty() && EnemyGroup->GetObjects().empty())
             {
-                // Free resources.
-                /*delete TileMapGroup;
-                delete GroundEffectGroup;
-                delete DebugIndicatorGroup;
-                delete TowerGroup;
-                delete EnemyGroup;
-                delete BulletGroup;
-                delete EffectGroup;
-                delete UIGroup;
-                delete imgTarget;*/
-                // Win.
                 Engine::GameEngine::GetInstance().ChangeScene("win");
             }
             continue;
@@ -166,7 +152,7 @@ void PlayScene::Update(float deltaTime)
         case 1:
             EnemyGroup->AddNewObject(enemy = new SoldierEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
             break;
-        case 2: // add new enemy HACKATHON-3 (3/3)
+        case 2:
             EnemyGroup->AddNewObject(enemy = new FastEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
             break;
         case 3:
@@ -326,8 +312,12 @@ void PlayScene::OnKeyDown(int keyCode)
     else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9)
     {
         // Hotkey for Speed up.
-        SpeedMult = keyCode - ALLEGRO_KEY_0;
+        SpeedMult = (keyCode - ALLEGRO_KEY_0) * 2;
     }
+    else if (keyCode == ALLEGRO_KEY_MINUS)
+        money -= 1000;
+    else if (keyCode == ALLEGRO_KEY_EQUALS)
+        money += 1000;
 }
 void PlayScene::Hit()
 {
@@ -492,41 +482,42 @@ bool PlayScene::CheckSpaceValid(int x, int y)
         dynamic_cast<Enemy *>(it)->UpdatePath(mapDistance);
     return true;
 }
-std::vector<std::vector<int>> PlayScene::CalculateBFSDistance()
+std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() // returns 2d map of distance from exit
 {
-    // Reverse BFS to find path.
+    // 2D array filled with -1 (unvisted)
     std::vector<std::vector<int>> map(MapHeight, std::vector<int>(std::vector<int>(MapWidth, -1)));
-    std::queue<Engine::Point> que;
-    // Push end point.
-    // BFS from end point.
-    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_DIRT)
+    std::queue<Engine::Point> que; // queue for BFS
+
+    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_DIRT) // check if exit is valid
         return map;
+
     que.push(Engine::Point(MapWidth - 1, MapHeight - 1));
     map[MapHeight - 1][MapWidth - 1] = 0;
+
     while (!que.empty())
     {
         Engine::Point p = que.front();
         que.pop();
 
-        // TODO PROJECT-1 (1/1): Implement a BFS starting from the most right-bottom block in the map. For each step you should assign the corresponding distance to the most right-bottom block. mapState[y][x] is TILE_DIRT if it is empty.
+        // BFS starting from the most right-bottom block in the map.
+        // Assign the corresponding distance to the most right-bottom block
 
-        // for (const auto &dir : directions) // check all four direction
-        // {
-        //     Engine::Point next = p + dir;
+        for (const auto &dir : directions) // check all four direction
+        {
+            Engine::Point next = p + dir;
 
-        //     // Check if the next point is within bounds
-        //     if (next.x < 0 || next.x >= MapWidth || next.y < 0 || next.y >= MapHeight)
-        //         continue;
+            // Check if in bound
+            if (next.x < 0 || next.x >= MapWidth || next.y < 0 || next.y >= MapHeight)
+                continue;
 
-        //     // Check if the cell is TILE_DIRT and not yet visited
-        //     if (mapState[next.y][next.x] == TILE_DIRT && map[next.y][next.x] == -1)
-        //     {
-        //         // Set the distance for this cell
-        //         map[next.y][next.x] = map[p.y][p.x] + 1;
-        //         // Add to queue for further exploration
-        //         que.push(next);
-        //     }
-        // }
+            // Check if the cell is TILE_DIRT and not yet visited
+            if (mapState[next.y][next.x] == TILE_DIRT && map[next.y][next.x] == -1)
+            {
+                // Distance = parent's distance + 1
+                map[next.y][next.x] = map[p.y][p.x] + 1;
+                que.push(next); // add to queue
+            }
+        }
     }
     return map;
 }

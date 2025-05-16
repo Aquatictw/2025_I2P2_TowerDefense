@@ -10,7 +10,8 @@
 #include "UI/Component/ImageButton.hpp"
 #include "UI/Component/Label.hpp"
 
-void LoseScene::Initialize() {
+void LoseScene::Initialize()
+{
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;
@@ -22,14 +23,16 @@ void LoseScene::Initialize() {
     btn->SetOnClickCallback(std::bind(&LoseScene::BackOnClick, this, 2));
     AddNewControlObject(btn);
     AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48, halfW, halfH * 7 / 4, 0, 0, 0, 255, 0.5, 0.5));
-    bgmInstance = AudioHelper::PlaySample("astronomia.ogg", false, AudioHelper::BGMVolume, PlayScene::DangerTime);
+    bgmInstance = AudioHelper::PlaySample("lose.mp3", false, AudioHelper::BGMVolume, PlayScene::DangerTime);
 }
-void LoseScene::Terminate() {
+void LoseScene::Terminate()
+{
     AudioHelper::StopSample(bgmInstance);
     bgmInstance = std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE>();
     IScene::Terminate();
 }
-void LoseScene::BackOnClick(int stage) {
+void LoseScene::BackOnClick(int stage)
+{
     // Change to select scene.
     Engine::GameEngine::GetInstance().ChangeScene("stage-select");
 }

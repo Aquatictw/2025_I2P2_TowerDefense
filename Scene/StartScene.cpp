@@ -3,6 +3,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <fstream>
 
 #include "Engine/AudioHelper.hpp"
 #include "Engine/GameEngine.hpp"
@@ -14,9 +15,12 @@
 #include "UI/Component/Label.hpp"
 #include "UI/Component/Slider.hpp"
 
-// FINISH HACKATHON-2 (1/3): You can imitate the 2 files: 'StartScene.hpp', 'StartScene.cpp' to implement your SettingsScene.
 void StartScene::Initialize()
 {
+    // Clear scores.txt at game start
+    std::ofstream fout("scores.txt", std::ios::trunc);
+    fout.close();
+
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;

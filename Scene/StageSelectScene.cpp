@@ -12,6 +12,7 @@
 #include "UI/Component/ImageButton.hpp"
 #include "UI/Component/Label.hpp"
 #include "UI/Component/Slider.hpp"
+#include "UsernameScene.hpp"
 
 void StageSelectScene::Initialize()
 {
@@ -54,9 +55,9 @@ void StageSelectScene::BackOnClick(int stage)
 
 void StageSelectScene::PlayOnClick(int stage)
 {
-    PlayScene *scene = dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetScene("play"));
-    scene->MapId = stage;
-    Engine::GameEngine::GetInstance().ChangeScene("play");
+    UsernameScene *scene = dynamic_cast<UsernameScene *>(Engine::GameEngine::GetInstance().GetScene("username"));
+    scene->SetStage(stage);
+    Engine::GameEngine::GetInstance().ChangeScene("username");
 }
 
 void StageSelectScene::ScoreboardOnClick()
