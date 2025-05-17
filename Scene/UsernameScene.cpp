@@ -23,7 +23,7 @@ void UsernameScene::Initialize()
     AddNewObject(new Engine::Label("Enter Your Username", "pirulen.ttf", 48, halfW, halfH / 3, 255, 255, 255, 255, 0.5, 0.5));
 
     // Add username display
-    usernameLabel = new Engine::Label("", "pirulen.ttf", 36, halfW, halfH / 2 + 50, 255, 255, 255, 255, 0.5, 0.5);
+    usernameLabel = new Engine::Label(username, "pirulen.ttf", 36, halfW, halfH / 2 + 50, 255, 255, 255, 255, 0.5, 0.5);
     AddNewObject(usernameLabel);
 
     // Add Start Game button

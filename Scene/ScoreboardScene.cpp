@@ -47,21 +47,51 @@ void ScoreboardScene::Initialize()
     AddNewObject(new Engine::Label("Player", "pirulen.ttf", 32, halfW - 100, 120, 255, 255, 255, 255, 0.5, 0.5));
     AddNewObject(new Engine::Label("Score", "pirulen.ttf", 32, halfW + 100, 120, 255, 255, 255, 255, 0.5, 0.5));
 
-    // Display scores
+    // Display scores for current page
+    int startIdx = currentPage * ENTRIES_PER_PAGE;
     int yPos = 170;
-    for (const auto &score : scores)
+    for (int i = 0; i < ENTRIES_PER_PAGE && startIdx + i < scores.size(); i++)
     {
+        const auto &score = scores[startIdx + i];
         AddNewObject(new Engine::Label(score.username, "pirulen.ttf", 24, halfW - 100, yPos, 255, 255, 255, 255, 0.5, 0.5));
         AddNewObject(new Engine::Label(std::to_string(score.money), "pirulen.ttf", 24, halfW + 100, yPos, 255, 255, 255, 255, 0.5, 0.5));
         yPos += 40;
     }
 
-    // Back button at the bottom
+    // Page navigation buttons
     Engine::ImageButton *btn;
+
+    // Back button
     btn = new Engine::ImageButton("win/dirt.png", "win/floor.png", halfW - 200, halfH * 7 / 4 - 50, 400, 100);
     btn->SetOnClickCallback(std::bind(&ScoreboardScene::BackOnClick, this, 2));
     AddNewControlObject(btn);
     AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48, halfW, halfH * 7 / 4, 0, 0, 0, 255, 0.5, 0.5));
+
+    // Previous page button
+    if (currentPage > 0)
+    {
+        btn = new Engine::ImageButton("win/dirt.png", "win/floor.png", halfW - 300, halfH * 7 / 4 - 50, 200, 100);
+        btn->SetOnClickCallback(std::bind(&ScoreboardScene::PrevPageOnClick, this, 2));
+        AddNewControlObject(btn);
+        AddNewObject(new Engine::Label("Prev", "pirulen.ttf", 32, halfW - 200, halfH * 7 / 4, 0, 0, 0, 255, 0.5, 0.5));
+    }
+
+    // Next page button
+    if ((currentPage + 1) * ENTRIES_PER_PAGE < scores.size())
+    {
+        btn = new Engine::ImageButton("win/dirt.png", "win/floor.png", halfW + 100, halfH * 7 / 4 - 50, 200, 100);
+        btn->SetOnClickCallback(std::bind(&ScoreboardScene::NextPageOnClick, this, 2));
+        AddNewControlObject(btn);
+        AddNewObject(new Engine::Label("Next", "pirulen.ttf", 32, halfW + 200, halfH * 7 / 4, 0, 0, 0, 255, 0.5, 0.5));
+    }
+
+    // Page number display
+    int totalPages = (scores.size() + ENTRIES_PER_PAGE - 1) / ENTRIES_PER_PAGE;
+    if (totalPages > 0)
+    {
+        std::string pageText = "Page " + std::to_string(currentPage + 1) + " of " + std::to_string(totalPages);
+        AddNewObject(new Engine::Label(pageText, "pirulen.ttf", 24, halfW, halfH * 7 / 4 + 80, 255, 255, 255, 255, 0.5, 0.5));
+    }
 }
 
 void ScoreboardScene::Terminate()
@@ -72,4 +102,24 @@ void ScoreboardScene::Terminate()
 void ScoreboardScene::BackOnClick(int stage)
 {
     Engine::GameEngine::GetInstance().ChangeScene("win");
+}
+
+void ScoreboardScene::NextPageOnClick(int stage)
+{
+    if ((currentPage + 1) * ENTRIES_PER_PAGE < scores.size())
+    {
+        currentPage++;
+        Terminate();
+        Initialize();
+    }
+}
+
+void ScoreboardScene::PrevPageOnClick(int stage)
+{
+    if (currentPage > 0)
+    {
+        currentPage--;
+        Terminate();
+        Initialize();
+    }
 }

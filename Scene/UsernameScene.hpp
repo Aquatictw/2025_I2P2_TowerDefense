@@ -11,7 +11,7 @@ class UsernameScene final : public Engine::IScene
 {
 private:
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> bgmInstance;
-    std::string username;
+    std::string username = "";
     int selectedStage;
     Engine::Label *usernameLabel;
 
