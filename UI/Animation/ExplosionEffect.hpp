@@ -8,15 +8,16 @@
 
 class PlayScene;
 
-class ExplosionEffect : public Engine::Sprite {
+class ExplosionEffect : public Engine::Sprite
+{
 protected:
     PlayScene *getPlayScene();
     float timeTicks;
     std::vector<std::shared_ptr<ALLEGRO_BITMAP>> bmps;
-    float timeSpan = 0.5;
+    float timeSpan = 0.2;
 
 public:
     ExplosionEffect(float x, float y);
     void Update(float deltaTime) override;
 };
-#endif   // EXPLOSIONEFFECT_HPP
+#endif // EXPLOSIONEFFECT_HPP

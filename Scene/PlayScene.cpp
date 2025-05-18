@@ -20,10 +20,12 @@
 #include "PlayScene.hpp"
 #include "Turret/LaserTurret.hpp"
 #include "Turret/MachineGunTurret.hpp"
+#include "Turret/TeslaCoilTurret.hpp"
 #include "Turret/TurretButton.hpp"
 #include "UI/Animation/DirtyEffect.hpp"
 #include "UI/Animation/Plane.hpp"
 #include "UI/Component/Label.hpp"
+#include "Turret/ShovelButton.hpp"
 
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = {Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1)};
@@ -309,6 +311,12 @@ void PlayScene::OnKeyDown(int keyCode)
         // Hotkey for LaserTurret.
         UIBtnClicked(1);
     }
+    else if (keyCode == ALLEGRO_KEY_E)
+    {
+        // Hotkey for TeslaCoilTurret.
+        UIBtnClicked(2);
+    }
+
     else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9)
     {
         // Hotkey for Speed up.
@@ -318,6 +326,7 @@ void PlayScene::OnKeyDown(int keyCode)
         money -= 1000;
     else if (keyCode == ALLEGRO_KEY_EQUALS)
         money += 1000;
+    UIMoney->Text = std::string("$") + std::to_string(this->money);
 }
 void PlayScene::Hit()
 {
@@ -409,19 +418,31 @@ void PlayScene::ConstructUI()
     UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ❤ ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88, 255, 0, 0, 255));
 
     TurretButton *btn;
-    // Button 1
+    // Button 1 - Machine Gun Turret
     btn = new TurretButton("play/floor.png", "play/dirt.png",
                            Engine::Sprite("play/tower-base.png", 1294, 136, 0, 0, 0, 0),
                            Engine::Sprite("play/turret-1.png", 1294, 136 - 8, 0, 0, 0, 0), 1294, 136, MachineGunTurret::Price);
-    // Reference: Class Member Function Pointer and std::bind.
     btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 0));
     UIGroup->AddNewControlObject(btn);
-    // Button 2
+
+    // Button 2 - Laser Turret
     btn = new TurretButton("play/floor.png", "play/dirt.png",
                            Engine::Sprite("play/tower-base.png", 1370, 136, 0, 0, 0, 0),
                            Engine::Sprite("play/turret-2.png", 1370, 136 - 8, 0, 0, 0, 0), 1370, 136, LaserTurret::Price);
     btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
     UIGroup->AddNewControlObject(btn);
+
+    // Button 3 - Tesla Coil Turret
+    btn = new TurretButton("play/floor.png", "play/dirt.png",
+                           Engine::Sprite("play/tower-base.png", 1294, 212, 0, 0, 0, 0),
+                           Engine::Sprite("play/tesla-turret.png", 1294, 212 - 8, 0, 0, 0, 0), 1294, 212, TeslaCoilTurret::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
+    UIGroup->AddNewControlObject(btn);
+
+    // Add Shovel Button
+    ShovelButton *shovel;
+    shovel = new ShovelButton(1370, 212);
+    UIGroup->AddNewControlObject(shovel);
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
@@ -439,6 +460,8 @@ void PlayScene::UIBtnClicked(int id)
         preview = new MachineGunTurret(0, 0);
     else if (id == 1 && money >= LaserTurret::Price)
         preview = new LaserTurret(0, 0);
+    else if (id == 2 && money >= TeslaCoilTurret::Price)
+        preview = new TeslaCoilTurret(0, 0);
     if (!preview)
         return;
     preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
