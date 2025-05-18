@@ -1,6 +1,9 @@
 // [main.cpp]
 // This is the entry point of your game.
 // You can register your scenes here, and start the game.
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 #include "Engine/GameEngine.hpp"
 #include "Engine/LOG.hpp"
 #include "Scene/LoseScene.hpp"
@@ -16,6 +19,7 @@ int main(int argc, char **argv)
 {
 	Engine::LOG::SetConfig(true);
 	Engine::GameEngine &game = Engine::GameEngine::GetInstance();
+	Engine::GameEngine::Initialize_Time();
 
 	game.AddNewScene("start", new StartScene()); // add start scene
 	game.AddNewScene("stage-select", new StageSelectScene());

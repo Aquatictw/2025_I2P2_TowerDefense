@@ -9,12 +9,14 @@
 /// <summary>
 /// All general classes are under this namespace for clarity.
 /// </summary>
-namespace Engine {
+namespace Engine
+{
     class IScene;
     /// <summary>
     /// The one and only GameEngine for the entire program. Responsible for low-level initialization and window events.
     /// </summary>
-    class GameEngine final {
+    class GameEngine final
+    {
     private:
         // Allegro5 settings, frames per second, screen width, screen height, maximum simultaneous audio samples.
         int fps{}, screenW{}, screenH{}, reserveSamples{};
@@ -155,6 +157,11 @@ namespace Engine {
         /// </summary>
         /// <returns>The Singleton instance of GameEngine.</returns>
         static GameEngine &GetInstance();
+
+        static void Initialize_Time();
+        static std::string Get_Time();
+
+        static std::string BOOT_TIME;
     };
 }
-#endif   // GAMEENGINE_HPP
+#endif // GAMEENGINE_HPP

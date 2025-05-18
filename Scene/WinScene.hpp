@@ -16,7 +16,6 @@ public:
     void Update(float deltaTime) override;
     void BackOnClick(int stage);
     void ScoreboardOnClick(int stage);
-    void WriteScore();
 };
 
 #endif // WINSCENE_HPP

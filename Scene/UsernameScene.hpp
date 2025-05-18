@@ -20,8 +20,9 @@ public:
     void Initialize() override;
     void Terminate() override;
     void OnKeyDown(int keyCode) override;
-    void StartGame();
+    void LeaderboardOnClick();
     void SetStage(int stage) { selectedStage = stage; }
+    void WriteScore(std::string username);
 };
 
 #endif // USERNAMESCENE_HPP

@@ -14,7 +14,6 @@
 
 void WinScene::Initialize()
 {
-    WriteScore();
     ticks = 0;
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
@@ -39,7 +38,7 @@ void WinScene::Initialize()
     AddNewControlObject(btn2);
     AddNewObject(new Engine::Label("Scoreboard", "pirulen.ttf", 38, halfW + 270, halfH * 7 / 4, 0, 0, 0, 255, 0.5, 0.5));
 
-    bgmId = AudioHelper::PlayAudio("win.wav");
+    bgmId = AudioHelper::PlayBGM("win.wav");
 }
 void WinScene::Terminate()
 {
@@ -57,53 +56,11 @@ void WinScene::Update(float deltaTime)
     }
 }
 
-void WinScene::WriteScore()
-{
-    PlayScene *playScene = dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetScene("play"));
-
-    std::map<std::string, int> scores; // user/scores value pair
-    std::ifstream fin("scores.txt");
-    std::string username;
-    int score;
-    while (fin >> username >> score)
-    {
-        scores[username] = score;
-    }
-    fin.close();
-
-    // Check if new score is higher or username doesn't exist
-    bool shouldWrite = true;
-    if (scores.find(playScene->username) != scores.end())
-    {
-        if (playScene->money <= scores[playScene->username])
-            shouldWrite = false;
-    }
-
-    // Write score if conditions are met
-    if (shouldWrite)
-    {
-        scores[playScene->username] = playScene->money; // update player score
-
-        std::ofstream fout("scores.txt", std::ios::trunc); // write to file
-        for (const auto &pair : scores)
-        {
-            fout << pair.first << " " << pair.second << "\n";
-        }
-        fout.close();
-        Engine::LOG(Engine::INFO) << "Wrote score: " << playScene->username << " " << playScene->money;
-    }
-    else
-    {
-        Engine::LOG(Engine::INFO) << "Score not written - existing score is higher for " << playScene->username;
-    }
-}
-
 void WinScene::BackOnClick(int stage)
 {
-    // Change to select scene.
     Engine::GameEngine::GetInstance().ChangeScene("stage-select");
 }
 void WinScene::ScoreboardOnClick(int stage)
 {
-    Engine::GameEngine::GetInstance().ChangeScene("scoreboard");
+    Engine::GameEngine::GetInstance().ChangeScene("username");
 }
