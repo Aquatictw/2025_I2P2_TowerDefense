@@ -10,6 +10,7 @@
 #include "UI/Component/ImageButton.hpp"
 #include "UI/Component/Label.hpp"
 #include "ScoreboardScene.hpp"
+#include "Engine/AudioHelper.hpp"
 
 void ScoreboardScene::LoadScores()
 {
@@ -72,7 +73,10 @@ void ScoreboardScene::Initialize()
     AddNewControlObject(next_btn);
     AddNewObject(new Engine::Label("Next", "pirulen.ttf", 32, halfW + 400, halfH * 7 / 4, 0, 0, 0, 255, 0.5, 0.5));
 
+    AddNewObject(new Engine::Image("win/yadaze.png", halfW + 400, 160, 400, 300, 0, 0));
+
     UpdateScoreLabels();
+    bgmId = AudioHelper::PlayBGM("leaderboard.mp3");
 }
 
 void ScoreboardScene::UpdateScoreLabels()
@@ -118,6 +122,7 @@ void ScoreboardScene::UpdateScoreLabels()
 void ScoreboardScene::Terminate()
 {
     IScene::Terminate();
+    AudioHelper::StopBGM(bgmId);
 }
 void ScoreboardScene::Draw() const
 {

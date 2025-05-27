@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 #include <cmath>
 #include <fstream>
 #include <functional>
@@ -12,6 +13,7 @@
 #include "Enemy/SoldierEnemy.hpp"
 #include "Enemy/TankEnemy.hpp"
 #include "Enemy/FastEnemy.hpp"
+#include "Enemy/BossEnemy.hpp"
 #include "Engine/AudioHelper.hpp"
 #include "Engine/GameEngine.hpp"
 #include "Engine/Group.hpp"
@@ -49,6 +51,11 @@ void PlayScene::Initialize()
     lives = 10;
     money = 150;
     SpeedMult = 1;
+    isBossActive = false;
+    maxBossHP = 0;
+    currentBossHP = 0;
+    bossImage = nullptr;
+
     // Add groups from bottom to top.
     AddNewObject(TileMapGroup = new Group());
     AddNewObject(GroundEffectGroup = new Group());
@@ -88,10 +95,34 @@ void PlayScene::Update(float deltaTime)
     else if (deathCountDown != -1)
         SpeedMult = 1;
     std::vector<float> reachEndTimes;
+
+    isBossActive = false;
     for (auto &it : EnemyGroup->GetObjects())
     {
-        reachEndTimes.push_back(dynamic_cast<Enemy *>(it)->reachEndTime);
+        if (auto boss = dynamic_cast<BossEnemy *>(it)) // if boss exist
+        {
+            isBossActive = true;
+            if (maxBossHP == 0)
+                maxBossHP = boss->GetHP();
+            currentBossHP = boss->GetHP();
+            // Draw boss image
+            if (!bossImage)
+            {
+                bossImage = new Engine::Image("play/kbtit_title.png", healthBarX + 253, healthBarY - 140, 300, 150);
+                UIGroup->AddNewObject(bossImage);
+            }
+            break;
+        }
     }
+    if (!isBossActive && bossImage)
+    {
+        UIGroup->RemoveObject(bossImage->GetObjectIterator());
+        bossImage = nullptr;
+    }
+
+    for (auto &it : EnemyGroup->GetObjects())
+        reachEndTimes.push_back(dynamic_cast<Enemy *>(it)->reachEndTime);
+
     std::sort(reachEndTimes.begin(), reachEndTimes.end());
     float newDeathCountDown = -1;
     int danger = lives;
@@ -109,7 +140,10 @@ void PlayScene::Update(float deltaTime)
                     // Restart Death Count Down BGM.
                     AudioHelper::StopSample(deathBGMInstance);
                     if (SpeedMult != 0)
+                    {
+                        AudioHelper::StopBGM(bgmId);
                         deathBGMInstance = AudioHelper::PlaySample("lose.mp3", false, AudioHelper::BGMVolume, pos);
+                    }
                 }
                 float alpha = pos / DangerTime;
                 alpha = std::max(0, std::min(255, static_cast<int>(alpha * alpha * 255)));
@@ -160,6 +194,9 @@ void PlayScene::Update(float deltaTime)
         case 3:
             EnemyGroup->AddNewObject(enemy = new TankEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
             break;
+        case 4:
+            EnemyGroup->AddNewObject(enemy = new BossEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
+            break;
         default:
             continue;
         }
@@ -186,13 +223,39 @@ void PlayScene::Draw() const
             {
                 if (mapDistance[i][j] != -1)
                 {
-                    // Not elegant nor efficient, but it's quite enough for debugging.
                     Engine::Label label(std::to_string(mapDistance[i][j]), "pirulen.ttf", 32, (j + 0.5) * BlockSize, (i + 0.5) * BlockSize);
                     label.Anchor = Engine::Point(0.5, 0.5);
                     label.Draw();
                 }
             }
         }
+    }
+
+    // Draw boss health bar if actives (fucking primitive but it works)
+    if (isBossActive)
+    {
+        // Draw black background bar
+        al_draw_filled_rectangle(healthBarX, healthBarY,
+                                 healthBarX + healthBarWidth, healthBarY + healthBarHeight,
+                                 al_map_rgb(0, 0, 0));
+
+        // Draw red health bar
+        float healthPercentage = currentBossHP / maxBossHP;
+        int currentWidth = healthBarWidth * healthPercentage;
+        al_draw_filled_rectangle(healthBarX, healthBarY,
+                                 healthBarX + currentWidth, healthBarY + healthBarHeight,
+                                 al_map_rgb(255, 0, 0));
+
+        // Draw border
+        al_draw_rectangle(healthBarX, healthBarY,
+                          healthBarX + healthBarWidth, healthBarY + healthBarHeight,
+                          al_map_rgb(255, 255, 255), 2);
+
+        // Draw health numbers
+        std::string healthText = std::to_string(static_cast<int>(currentBossHP)) + " / " + std::to_string(static_cast<int>(maxBossHP));
+        Engine::Label healthNumbers(healthText, "pirulen.ttf", 24, healthBarX + healthBarWidth / 2, healthBarY + 15);
+        healthNumbers.Anchor = Engine::Point(0.5, 0.5); // Center the text
+        healthNumbers.Draw();
     }
 }
 void PlayScene::OnMouseDown(int button, int mx, int my)
@@ -413,9 +476,11 @@ void PlayScene::ConstructUI()
     // Background
     UIGroup->AddNewObject(new Engine::Image("play/sand.png", 1280, 0, 320, 832));
     // Text
-    UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 0));
-    UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 48));
-    UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ❤ ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88, 255, 0, 0, 255));
+    UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 10));
+    UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 58, 0, 255, 0));
+    UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life: ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88, 255, 0, 0, 255));
+    UIGroup->AddNewObject(new Engine::Label("Press + and -", "pirulen.ttf", 21, 1294, 370, 20, 20, 255, 255));
+    UIGroup->AddNewObject(new Engine::Label("to cheat money", "pirulen.ttf", 21, 1294, 400, 20, 20, 255, 255));
 
     TurretButton *btn;
     // Button 1 - Machine Gun Turret
@@ -446,24 +511,27 @@ void PlayScene::ConstructUI()
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
-    int shift = 135 + 25;
-    dangerIndicator = new Engine::Sprite("play/benjamin.png", w - shift, h - shift);
+    dangerIndicator = new Engine::Sprite("play/tdn.png", w / 2, h / 2);
     dangerIndicator->Tint.a = 0;
     UIGroup->AddNewObject(dangerIndicator);
 }
 
 void PlayScene::UIBtnClicked(int id)
 {
+    Turret *next_preview = nullptr;
+    if (id == 0 && money >= MachineGunTurret::Price)
+        next_preview = new MachineGunTurret(0, 0);
+    else if (id == 1 && money >= LaserTurret::Price)
+        next_preview = new LaserTurret(0, 0);
+    else if (id == 2 && money >= TeslaCoilTurret::Price)
+        next_preview = new TeslaCoilTurret(0, 0);
+    if (!next_preview)
+        return;
+
     if (preview)
         UIGroup->RemoveObject(preview->GetObjectIterator());
-    if (id == 0 && money >= MachineGunTurret::Price)
-        preview = new MachineGunTurret(0, 0);
-    else if (id == 1 && money >= LaserTurret::Price)
-        preview = new LaserTurret(0, 0);
-    else if (id == 2 && money >= TeslaCoilTurret::Price)
-        preview = new TeslaCoilTurret(0, 0);
-    if (!preview)
-        return;
+    preview = next_preview;
+
     preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
     preview->Tint = al_map_rgba(255, 255, 255, 200);
     preview->Enabled = false;
@@ -495,7 +563,8 @@ bool PlayScene::CheckSpaceValid(int x, int y)
             pnt.y = 0;
         if (pnt.y >= MapHeight)
             pnt.y = MapHeight - 1;
-        if (map[pnt.y][pnt.x] == -1)
+        // Skip path check for BossEnemy
+        if (dynamic_cast<BossEnemy *>(it) == nullptr && map[pnt.y][pnt.x] == -1)
             return false;
     }
     // All enemy have path to exit.

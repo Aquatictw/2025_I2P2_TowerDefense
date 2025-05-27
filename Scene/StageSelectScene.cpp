@@ -60,8 +60,3 @@ void StageSelectScene::PlayOnClick(int stage)
     scene->username = "";
     Engine::GameEngine::GetInstance().ChangeScene("play");
 }
-
-void StageSelectScene::ScoreboardOnClick()
-{
-    Engine::GameEngine::GetInstance().ChangeScene("scoreboard-scene");
-}

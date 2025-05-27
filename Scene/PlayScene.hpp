@@ -31,6 +31,15 @@ public:
 private:
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
+    // Boss health bar parameters
+    bool isBossActive;
+    float maxBossHP;
+    float currentBossHP;
+    const int healthBarWidth = 800; // Width of health bar
+    const int healthBarHeight = 30; // Height of health bar
+    const int healthBarY = 750;     // Y position of health bar
+    const int healthBarX = 250;     // Y position of health bar
+    Engine::Image *bossImage;
 
 protected:
     int SpeedMult;

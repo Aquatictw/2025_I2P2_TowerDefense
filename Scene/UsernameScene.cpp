@@ -61,6 +61,13 @@ void UsernameScene::OnKeyDown(int keyCode)
         if (username.length() < 10)               // limit username length
             username += c;
     }
+    else if (keyCode == ALLEGRO_KEY_ENTER)
+    {
+        if (username.length() > 0)
+        {
+            LeaderboardOnClick();
+        }
+    }
 
     usernameLabel->Text = username;
 }

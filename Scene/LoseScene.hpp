@@ -4,9 +4,10 @@
 #include <allegro5/allegro_audio.h>
 #include <memory>
 
-class LoseScene final : public Engine::IScene {
+class LoseScene final : public Engine::IScene
+{
 private:
-    std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> bgmInstance;
+    ALLEGRO_SAMPLE_ID bgmInstance;
 
 public:
     explicit LoseScene() = default;
@@ -15,4 +16,4 @@ public:
     void BackOnClick(int stage);
 };
 
-#endif   // LOSESCENE_HPP
+#endif // LOSESCENE_HPP

@@ -17,10 +17,6 @@
 
 void StartScene::Initialize()
 {
-    // // Clear scores.txt at game start
-    // std::ofstream fout("scores.txt", std::ios::trunc);
-    // fout.close();
-
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;
@@ -40,16 +36,18 @@ void StartScene::Initialize()
     AddNewControlObject(btn);
     AddNewObject(new Engine::Label("Settings", "pirulen.ttf", 48, halfW, halfH * 3 / 2, 0, 0, 0, 255, 0.5, 0.5));
 
-    // Initialize BGM
+    AddNewObject(new Engine::Label("made by Aquatic 2025/5", "Roboto-Black.ttf", 25, halfW + 633, halfH + 345, 200, 200, 200, 255, 0.5, 0.5));
+    AddNewObject(new Engine::Label("Based On I2P2_TowerDefense", "Roboto-Black.ttf", 25, halfW + 600, halfH + 380, 200, 200, 200, 255, 0.5, 0.5));
+
     bgmInstance = AudioHelper::PlaySample("select.ogg", true, AudioHelper::BGMVolume);
 }
 void StartScene::Terminate()
 {
-    AudioHelper::StopSample(bgmInstance); // stop b
     IScene::Terminate();
 }
 void StartScene::PlayOnClick(int stage)
 {
+    AudioHelper::StopSample(bgmInstance);
     Engine::GameEngine::GetInstance().ChangeScene("stage-select");
 }
 void StartScene::SettingsOnClick(int stage)

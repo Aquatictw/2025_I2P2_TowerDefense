@@ -14,7 +14,7 @@ class ScoreboardScene final : public Engine::IScene
 {
 private:
     std::string scoreFile = Engine::GameEngine::BOOT_TIME + "_score.txt";
-    int bgmId;
+    ALLEGRO_SAMPLE_ID bgmId;
     std::vector<GameScore> scores;
     int currentPage;
     static const int ENTRIES_PER_PAGE = 8;
